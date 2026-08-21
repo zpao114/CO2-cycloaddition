@@ -1,0 +1,13 @@
+# ORCA 6.1 - extra_12_carbonate_anion - Recommended for manuscript
+! B3LYP def2-TZVP Opt Freq D3BJ RIJCOSX
+%pal nprocs 16 end
+%method
+  Functional B3LYP
+  Basis def2-TZVP
+  Dispersion D3BJ
+end
+%output
+  Print[ P_Mulliken ] 1
+  Print[ P_Atombasis ] 1
+end
+* xyzfile -1 1 ..\xyz_files\extra_12_carbonate_anion.xyz

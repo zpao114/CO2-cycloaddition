@@ -1,0 +1,108 @@
+# Data registry — where each processed artefact lives and who creates it
+# schema: name | path | produced_by | consumed_by | format | notes
+
+name: cleaned
+path: data/processed/cleaned.csv
+produced_by: src/data/101_clean.py
+consumed_by: [src/data/102_smiles.py, src/analysis/mechanism/601_catalyst_mechanism_v2.py]
+format: csv
+rows: 2602
+columns: 25
+notes: 286 rows dropped with reason in data/external/discard_report.csv
+
+---
+
+name: co2_smiles
+path: data/processed/co2_smiles.csv
+produced_by: src/data/102_smiles.py
+consumed_by: [src/data/103_drfp.py]
+format: csv
+rows: 2316
+columns: 4
+notes: RDKit canonicalized SMILES; 286 failures dropped
+
+---
+
+name: co2_drfp
+path: data/processed/co2_drfp.csv
+produced_by: src/data/103_drfp.py
+consumed_by: [src/data/201_drfp_ablation.py]
+format: csv
+rows: 2316
+columns: 2048
+notes: DRFP_2048 fingerprint, 4 variants (full / reactants / no_cats / no_sols)
+
+---
+
+name: co2_drfp_xtb_extended
+path: data/processed/co2_drfp_xtb_extended.csv
+produced_by: src/data/107_merge_substrate_xtb.py
+consumed_by: [almost everything downstream]
+format: csv
+rows: 2316
+columns: 87
+notes: Master feature table. Includes DRFP-derived descriptors + GFN2-xTB
+  electronic descriptors + condition features + subordinate interactions.
+
+---
+
+name: split_manifest
+path: results/results_data_split/data_split.json
+produced_by: src/data_split.py
+consumed_by: [all CV scripts]
+format: json
+notes: 5-fold stratified + 15% holdout, seed=2026, yield-quartile strata
+
+---
+
+name: per_substrate_top_features
+path: results/results_step4_5/per_substrate_top_features.csv
+produced_by: src/analysis/loso/701_per_substrate_shap.py
+consumed_by: [src/visualization/fig4_shap_per_substrate_*.py]
+format: csv
+notes: Top-5 SHAP features per substrate. CHO top-1 is time_log, not sub_homo_eV.
+
+---
+
+name: loso_full_results
+path: results/results_si/loso_full_results.csv
+produced_by: src/ci_artifacts/generate_si_s3_benchmark_full_v3_1.py
+consumed_by: [src/visualization/fig1_protocol_comparison_*.py]
+format: csv
+notes: LOSO × 4 models × 3 seeds, F0-F3 feature sets
+
+---
+
+name: lomo_v3_full_results
+path: results/results_si/lomo_v3_full_results.csv
+produced_by: src/ci_artifacts/generate_si_s3_benchmark_full_v3_1.py
+consumed_by: [src/ci_artifacts/generate_year_ood_benchmark.py]
+format: csv
+notes: LOMO × 4 models × 3 seeds, v3 hyper-parameters
+
+---
+
+name: y_randomization_summary
+path: results/results_y_randomization_v4_100perm/y_randomization_v4_100perm_summary.json
+produced_by: src/ci_artifacts/generate_y_randomization_v4_100perm.py
+consumed_by: [src/visualization/fig_yrandomization_100perm.py]
+format: json
+notes: 100 permutations × 4 models × 3 seeds; ΔR² = 0.316 >> 2σ
+
+---
+
+name: matrix_yield_ci_5x5
+path: results/results_substrate_catalyst_matrix/matrix_yield_ci_5x5.csv
+produced_by: src/analysis/diagnostics/901_substrate_catalyst_matrix.py
+consumed_by: [src/visualization/fig3_coverage_5x5_*.py]
+format: csv
+notes: 5 substrate × 5 mechanism-class mean yield + 95% CI
+
+---
+
+name: bootstrap_substrate_shap_ci
+path: data/processed/bootstrap_substrate_shap_ci.csv
+produced_by: src/ci_artifacts/generate_bootstrap_substrate_ci.py
+consumed_by: [src/visualization/regen_all_v3.py]
+format: csv
+notes: 100-bootstrap CI for per-substrate signed SHAP

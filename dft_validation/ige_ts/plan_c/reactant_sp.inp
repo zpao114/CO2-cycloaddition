@@ -1,0 +1,11 @@
+! B97-3c SMD(DMSO) VeryTightSCF
+%maxcore 4000
+%pal
+  nprocs 1
+end
+%scf
+  MaxIter 500
+  DIISMaxEq 20
+  CNVDIIS 0.0001
+end
+* xyzfile -1 1 reactant_sp.xyz

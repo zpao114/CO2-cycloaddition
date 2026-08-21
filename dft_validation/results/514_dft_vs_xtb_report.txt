@@ -1,0 +1,22 @@
+DFT-vs-xTB validation report
+============================================================
+Pairs matched : 18
+xTB summary   : D:\machine-learning\CO2-cycloaddition\dft_validation\results\xtb_on_dft_geometry_nosolv.csv
+DFT summary   : D:\machine-learning\CO2-cycloaddition\dft_validation\results\dft_results_summary.csv
+
+HOMO (eV)       N=18   MSE=+3.462  MAE=4.615  RMSE=5.189  MAX=11.678
+                R=-0.304  Spearman=+0.480  MAE_after_shift=1.785
+LUMO (eV)       N=18   MSE=+4.938  MAE=5.280  RMSE=5.529  MAX=10.299
+                R=+0.572  Spearman=+0.617  MAE_after_shift=1.634
+Gap (eV)        N=18   MSE=+1.476  MAE=1.799  RMSE=2.506  MAX=7.298
+                R=+0.689  Spearman=+0.655  MAE_after_shift=1.420
+Dipole (Debye)  N=0    MSE=+nan  MAE=nan  RMSE=nan  MAX=nan
+                R=+nan  Spearman=+nan  MAE_after_shift=nan
+
+Interpretation guide (typical for GFN2-xTB vs B3LYP-D3BJ):
+  - HOMO/LUMO MAE typically 0.3-0.6 eV (xTB underestimates gap)
+  - Gap MAE  typically 0.5-1.0 eV
+  - Dipole MAE typically < 0.5 D
+  - R >= 0.90 and Spearman >= 0.85 indicate good trend agreement
+  - MAE_after_shift removes the systematic offset and shows
+    the residual error after a per-descriptor constant shift.

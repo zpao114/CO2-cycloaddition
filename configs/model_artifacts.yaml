@@ -1,0 +1,51 @@
+# Model artefact registry
+# Maps model names to persisted weights, scaler and dependency files
+
+models:
+
+  DualBranchANN:
+    primary: true
+    persistence_script: src/models/persistence/401_persist_best_pipeline.py
+    training_data: data/processed/co2_drfp_xtb_extended.csv
+    loss_components: [DRFP_recon, yield_pred]
+    lambda_prop: 0.5
+    latent_dim: 128
+    artefacts:
+      encoder: results/results_best_pipeline/artifacts/pcl_ae_encoder.pt
+      drfp_scaler: results/results_best_pipeline/artifacts/drfp_scaler.joblib
+      xtb_cond_scaler: results/results_best_pipeline/artifacts/xtb_cond_inter_scaler.joblib
+      weights: results/results_best_pipeline/artifacts/dual_branch_ann.pt
+      meta: results/results_best_pipeline/artifacts/feature_meta.json
+      metrics: results/results_best_pipeline/artifacts/training_metrics.json
+
+  PCL_AE_128:
+    purpose: latent-space compression for DRFP
+    input_dim: 2048
+    latent_dim: 128
+    lambda_prop: 0.5
+    artefacts:
+      weights: results/results_pcl_ae/pcl_ae_latent.npy
+      meta: results/results_pcl_ae/pcl_ae_latent.npy.meta.json
+
+  StandardAE:
+    purpose: baseline autoencoder (no property co-learning)
+    input_dim: 2048
+    latent_dim: 128
+    artefacts:
+      weights: results/results_pcl_ae/standard_ae_latent.npy
+
+  RandomForest:
+    purpose: ML baseline
+    artefact: not persisted
+
+  XGBoost:
+    purpose: ML baseline
+    hyperparams:
+      max_depth: 4
+    artefact: not persisted
+
+  LightGBM:
+    purpose: ML baseline
+    hyperparams:
+      num_leaves: 15
+    artefact: not persisted

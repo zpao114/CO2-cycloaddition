@@ -1,0 +1,40 @@
+# ORCA OptTS + NumFreq for PO + Br- + CO2 (TS RDS step 1)
+# Method: B97-3c (cost-effective composite, Grimme 2017)
+# Job: TS optimization + numerical frequency check
+# Generated: 2026-08-08 09:29:31
+# Atoms: 14 (substrate + Br- + CO2)
+# Note: ORCA * xyz 0 2 followed by 14 coordinate lines (no atom count line)
+
+! B97-3c OptTS NumFreq SMD(DMSO) VeryTightSCF
+
+%maxcore 4000
+
+%pal
+  nprocs 8
+end
+
+%scf
+  MaxIter 500
+end
+
+%geom
+  MaxIter 200
+  Trust 0.3
+end
+
+* xyz 0 2
+Br     3.90160000    -0.42960000     0.00000000
+C      1.54000000     0.00000000     0.00000000
+C      0.00000000     0.00000000     0.00000000
+O      0.13400000     1.42200000     0.00000000
+H      1.54000000     0.00000000     1.08000000
+H      1.54000000     0.00000000    -1.08000000
+H      0.00000000     0.00000000     1.08000000
+C     -0.75000000    -1.29900000     0.00000000
+H     -1.81191280    -1.10217214     0.00000000
+H     -0.48943310    -1.86572855    -0.88165960
+H     -0.48943310    -1.86572855     0.88165960
+C      1.54000000    -5.00000000     0.00000000
+O      1.54000000    -3.84000000     0.00000000
+O      1.54000000    -6.16000000     0.00000000
+*

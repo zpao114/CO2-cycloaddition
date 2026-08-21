@@ -1,0 +1,51 @@
+﻿idx,name,smiles,family,justification,charge,mult,xyz_file,inp_file,status
+1,epoxide_4_methyl_1_2_epoxybutane,CC(C)C1CO1,substrate,Internal branched epoxide (isobutylene oxide) — adds branching topology,0,1,epoxide_4_methyl_1_2_epoxybutane.xyz,epoxide_4_methyl_1_2_epoxybutane.inp,generated
+2,epoxide_5_1_2_epoxypentane,CCCC1CO1,substrate,Mid-chain terminal epoxide — extends chain length branch,0,1,epoxide_5_1_2_epoxypentane.xyz,epoxide_5_1_2_epoxypentane.inp,generated
+3,epoxide_6_1_2_epoxyhexane,CCCCC1CO1,substrate,C6 alkyl chain epoxide — adds longer-chain chemistry,0,1,epoxide_6_1_2_epoxyhexane.xyz,epoxide_6_1_2_epoxyhexane.inp,generated
+4,epoxide_7_cyclohexene_oxide,C1CCC2OC2C1,substrate,Cyclic internal epoxide — adds ring strain,0,1,epoxide_7_cyclohexene_oxide.xyz,epoxide_7_cyclohexene_oxide.inp,generated
+5,epoxide_8_glycidol,OCC1CO1,substrate,Hydroxyl-bearing epoxide — adds H-bond donor functionality,0,1,epoxide_8_glycidol.xyz,epoxide_8_glycidol.inp,generated
+6,cat_4_TBAB,CCCC[N+](CCCC)(CCCC)CCCC.[Br-],catalyst,TBAB full ion pair — adds to TBAI/ZnBr2/DBU set,0,1,cat_4_TBAB.xyz,cat_4_TBAB.inp,generated
+7,cat_5_BMIM_BF4,Cn1cc[n+](C)c1.[B-](F)(F)(F)F,catalyst,1-Butyl-3-methylimidazolium BF4 — imidazolium IL,0,1,cat_5_BMIM_BF4.xyz,cat_5_BMIM_BF4.inp,generated
+8,cat_6_BMIM_Cl,Cn1cc[n+](C)c1.[Cl-],catalyst,1-Butyl-3-methylimidazolium chloride — common IL anion,0,1,cat_6_BMIM_Cl.xyz,cat_6_BMIM_Cl.inp,generated
+9,cat_7_TMEDA,CN(C)CCN(C)C,catalyst,Tetramethylethylenediamine — non-ionic organic base,0,1,cat_7_TMEDA.xyz,cat_7_TMEDA.inp,generated
+10,solv_4_MeCN,CC#N,solvent,Acetonitrile — common polar aprotic solvent,0,1,solv_4_MeCN.xyz,solv_4_MeCN.inp,generated
+11,solv_5_CH2Cl2,ClCCl,solvent,Dichloromethane — chlorinated solvent baseline,0,1,solv_5_CH2Cl2.xyz,solv_5_CH2Cl2.inp,generated
+12,solv_6_EtOH,CCO,solvent,Ethanol — protic solvent for CO2 cycloaddition,0,1,solv_6_EtOH.xyz,solv_6_EtOH.inp,generated
+13,il_split_1_TBAI_cation,CCCC[N+](CCCC)(CCCC)CCCC,ion_pair,Tetrabutylammonium cation alone — splits TBAB/TBAI,1,1,il_split_1_TBAI_cation.xyz,il_split_1_TBAI_cation.inp,generated
+14,il_split_2_TBAI_anion,[I-],ion_pair,Iodide anion alone — splits TBAB/TBAI,-1,1,il_split_2_TBAI_anion.xyz,il_split_2_TBAI_anion.inp,generated
+15,il_split_3_BMIM_cation,Cn1cc[n+](C)c1,ion_pair,BMIM cation alone — splits BMIM BF4/Cl,1,1,il_split_3_BMIM_cation.xyz,il_split_3_BMIM_cation.inp,generated
+16,il_split_4_BMIM_BF4_anion,[B-](F)(F)(F)F,ion_pair,BF4 anion alone — splits BMIM BF4,-1,1,il_split_4_BMIM_BF4_anion.xyz,il_split_4_BMIM_BF4_anion.inp,generated
+17,il_split_5_BMIM_Cl_anion,[Cl-],ion_pair,Cl anion alone — splits BMIM Cl,-1,1,il_split_5_BMIM_Cl_anion.xyz,il_split_5_BMIM_Cl_anion.inp,generated
+18,complex_1_PO_TBAI,CC1CO1.CCCC[N+](CCCC)(CCCC)CCCC.[I-],complex,Propylene oxide + TBAI — reference Lewis-base activation,0,1,complex_1_PO_TBAI.xyz,complex_1_PO_TBAI.inp,generated
+19,complex_2_PO_ZnBr2,CC1CO1.[Br-].[Zn+2].[Br-],complex,Propylene oxide + ZnBr2 — reference Lewis-acid activation,0,1,complex_2_PO_ZnBr2.xyz,complex_2_PO_ZnBr2.inp,generated
+20,complex_3_SO_TBAI,C1OC1c1ccccc1.CCCC[N+](CCCC)(CCCC)CCCC.[I-],complex,Styrene oxide + TBAI — aromatic reference Lewis-base,0,1,complex_3_SO_TBAI.xyz,complex_3_SO_TBAI.inp,generated
+21,complex_4_SO_ZnBr2,C1OC1c1ccccc1.[Br-].[Zn+2].[Br-],complex,Styrene oxide + ZnBr2 — aromatic reference Lewis-acid,0,1,complex_4_SO_ZnBr2.xyz,complex_4_SO_ZnBr2.inp,generated
+22,complex_5_DBU_PO,CC1CO1.C1CCC2=NCCCCN2CC1,complex,Propylene oxide + DBU — reference H-bond network,0,1,complex_5_DBU_PO.xyz,complex_5_DBU_PO.inp,generated
+23,variant_1_allyl_glycidyl_ether,C=CCOCC1CO1,variant,Allyl glycidyl ether — terminal alkene variant,0,1,variant_1_allyl_glycidyl_ether.xyz,variant_1_allyl_glycidyl_ether.inp,generated
+24,variant_2_butyl_glycidyl_ether,CCCCOCC1CO1,variant,Butyl glycidyl ether — ether functionalisation,0,1,variant_2_butyl_glycidyl_ether.xyz,variant_2_butyl_glycidyl_ether.inp,generated
+25,variant_3_phenyl_glycidyl_ether,c1ccc(OCC2CO2)cc1,variant,Phenyl glycidyl ether — aromatic ether,0,1,variant_3_phenyl_glycidyl_ether.xyz,variant_3_phenyl_glycidyl_ether.inp,generated
+26,variant_4_benzyl_glycidyl_ether,c1ccc(COCC2CO2)cc1,variant,Benzyl glycidyl ether — benzylic ether,0,1,variant_4_benzyl_glycidyl_ether.xyz,variant_4_benzyl_glycidyl_ether.inp,generated
+27,variant_5_glycidyl_methacrylate,CC(=C)C(=O)OCC1CO1,variant,Glycidyl methacrylate — vinyl ester functionalisation,0,1,variant_5_glycidyl_methacrylate.xyz,variant_5_glycidyl_methacrylate.inp,generated
+28,variant_6_epichlorohydrin,ClCC1CO1,variant,Epichlorohydrin — chloroalkyl variant,0,1,variant_6_epichlorohydrin.xyz,variant_6_epichlorohydrin.inp,generated
+29,variant_7_epibromohydrin,BrCC1CO1,variant,Epibromohydrin — bromoalkyl variant,0,1,variant_7_epibromohydrin.xyz,variant_7_epibromohydrin.inp,generated
+30,variant_8_glycidyl_amide,NC(=O)OCC1CO1,variant,Glycidyl carbamate — amide-bearing variant,0,1,variant_8_glycidyl_amide.xyz,variant_8_glycidyl_amide.inp,generated
+31,variant_9_1_2_epoxy_3_phenoxypropane,c1ccc(OCC2CO2)cc1,variant,Same as phenyl glycidyl (duplicate entry for cross-check),0,1,variant_9_1_2_epoxy_3_phenoxypropane.xyz,variant_9_1_2_epoxy_3_phenoxypropane.inp,generated
+32,variant_10_tert_butyl_glycidyl_ether,CC(C)(C)OCC1CO1,variant,tert-butyl glycidyl ether — bulky ether variant,0,1,variant_10_tert_butyl_glycidyl_ether.xyz,variant_10_tert_butyl_glycidyl_ether.inp,generated
+33,variant_11_2_3_epoxy_propyl_hexanoate,CCCCCC(=O)OCC1CO1,variant,Hexanoate ester-functionalised epoxide,0,1,variant_11_2_3_epoxy_propyl_hexanoate.xyz,variant_11_2_3_epoxy_propyl_hexanoate.inp,generated
+34,variant_12_methyl_glycidyl_ether,COCC1CO1,variant,Methyl glycidyl ether — short ether,0,1,variant_12_methyl_glycidyl_ether.xyz,variant_12_methyl_glycidyl_ether.inp,generated
+35,variant_13_ethyl_glycidyl_ether,CCOCC1CO1,variant,Ethyl glycidyl ether — short ether,0,1,variant_13_ethyl_glycidyl_ether.xyz,variant_13_ethyl_glycidyl_ether.inp,generated
+36,variant_14_isopropyl_glycidyl_ether,CC(C)OCC1CO1,variant,Isopropyl glycidyl ether — branched ether,0,1,variant_14_isopropyl_glycidyl_ether.xyz,variant_14_isopropyl_glycidyl_ether.inp,generated
+37,variant_15_cyclohexyl_glycidyl_ether,C1CCC(CC1)OCC2CO2,variant,Cyclohexyl glycidyl ether — cyclic ether,0,1,variant_15_cyclohexyl_glycidyl_ether.xyz,variant_15_cyclohexyl_glycidyl_ether.inp,generated
+38,extra_1_CO2,O=C=O,substrate,CO2 — reference molecule,0,1,extra_1_CO2.xyz,extra_1_CO2.inp,generated
+39,extra_2_cyclic_carbonate,O=C1OCCO1,product,Cyclic carbonate product — final product of the reaction,0,1,extra_2_cyclic_carbonate.xyz,extra_2_cyclic_carbonate.inp,generated
+40,extra_3_water,O,solvent,Water — protic solvent reference,0,1,extra_3_water.xyz,extra_3_water.inp,generated
+41,extra_4_methanol,CO,solvent,Methanol — protic solvent reference,0,1,extra_4_methanol.xyz,extra_4_methanol.inp,generated
+42,extra_5_isopropanol,CC(C)O,solvent,Isopropanol — secondary alcohol,0,1,extra_5_isopropanol.xyz,extra_5_isopropanol.inp,generated
+43,extra_6_thf,C1CCOC1,solvent,Tetrahydrofuran — common ether solvent,0,1,extra_6_thf.xyz,extra_6_thf.inp,generated
+44,extra_7_toluene,Cc1ccccc1,solvent,Toluene — non-polar aromatic solvent,0,1,extra_7_toluene.xyz,extra_7_toluene.inp,generated
+45,extra_8_n_hexane,CCCCCC,solvent,n-Hexane — non-polar reference,0,1,extra_8_n_hexane.xyz,extra_8_n_hexane.inp,generated
+46,extra_9_ethyl_acetate,CCOC(C)=O,solvent,Ethyl acetate — ester solvent,0,1,extra_9_ethyl_acetate.xyz,extra_9_ethyl_acetate.inp,generated
+47,extra_10_benzene,c1ccccc1,solvent,Benzene — aromatic reference,0,1,extra_10_benzene.xyz,extra_10_benzene.inp,generated
+48,extra_11_aniline,Nc1ccccc1,solvent,Aniline — aromatic amine,0,1,extra_11_aniline.xyz,extra_11_aniline.inp,generated
+49,extra_12_carbonate_anion,[O-]C(=O)[O-],ion_pair,Carbonate anion — basic anion reference,-1,1,extra_12_carbonate_anion.xyz,extra_12_carbonate_anion.inp,generated
+50,extra_13_acetate_anion,CC(=O)[O-],ion_pair,Acetate anion — carboxyl anion reference,-1,1,extra_13_acetate_anion.xyz,extra_13_acetate_anion.inp,generated

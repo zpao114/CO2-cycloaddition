@@ -1,0 +1,210 @@
+# =============================================================================
+# CO2 Cycloaddition — 完整端到端执行脚本（2026-08-18 编号整理后）
+# =============================================================================
+#
+# 复制整段到 PowerShell，按顺序执行。
+# 工作流：
+#   201 (λ 扫描) → config.py 自动更新 BEST_LAMBDA_PROP
+#       ↓
+#   202 (DRFP 消融) → drfp_ablation_meta.json
+#       ↓
+#   P2 并行 (302/303/304/305/801)
+#       ↓
+#   P3 并行 (301/306/401)
+#
+# 关键约束：
+#   - Tier 1 必须串行（101 -> 106）。
+#   - Tier 2 (P1) 在 106 完成后即可全部并行，只读主表。
+#   - 201_ablation.py = DRFP 变体消融 + λ 扫描 + Benchmark
+#   - 201 完成后才能跑 P2/P3。
+#   - P3 在 202 完成后全并行（301 / 306 / 401 互相独立）。
+#   - Tier 6 出图按各自上游依赖触发。
+#   - DFT 集群完全独立分支，与上面任意 Tier 并行即可。
+#
+# 每个 Start-Job 在独立的 PowerShell 后台进程中运行；
+# Wait-Job / Receive-Job 用于在进入下一 Tier 前确认该 Tier 全部完成。
+# =============================================================================
+
+# --- 0. 环境准备 -----------------------------------------------------------
+conda activate D:\co2\env_drfp
+cd /d "D:\machine-learning\CO2 cycloaddition"
+
+# 验证 Python 与 GPU
+python -c "import torch; print('PyTorch', torch.__version__, '| CUDA', torch.cuda.is_available())"
+
+
+# =============================================================================
+# TIER 1 — 主表（线性，强依赖，不可并行）
+# =============================================================================
+
+python 101_clean.py
+python 102_smiles.py
+python 103_drfp.py
+
+# xTB 计算是瓶颈（约 6 小时，可单独集群跑：见 TIER-DFT 下面）
+python 104_run_xtb.py
+python 105_xtb_sanity_check.py
+python 106_merge_xtb.py
+
+
+# =============================================================================
+# TIER 2 — POOL P1：106 完成后立刻全并行（互不依赖，只读主表）
+# 每个脚本都只读 co2_drfp_xtb_extended.csv，不需要任何模型结果。
+# =============================================================================
+
+$jobs_p1 = @()
+$jobs_p1 += Start-Job -Name "p1_802_pcl_ae_viz"    -ScriptBlock { python 802_pcl_ae_visualization.py }
+$jobs_p1 += Start-Job -Name "p1_803_mordred"        -ScriptBlock { python 803_mordred_ablation.py }
+$jobs_p1 += Start-Job -Name "p1_804_hierarchical"   -ScriptBlock { python 804_hierarchical_catalyst_model.py }
+$jobs_p1 += Start-Job -Name "p1_501_dft_inputs"     -ScriptBlock { python 501_generate_dft_inputs.py }
+$jobs_p1 += Start-Job -Name "p1_502_dft_inputs_50"  -ScriptBlock { python 502_generate_dft_inputs_extended.py }
+$jobs_p1 += Start-Job -Name "p1_601_shap"           -ScriptBlock { python analysis/601_shap_analysis.py }
+$jobs_p1 += Start-Job -Name "p1_603_lca"            -ScriptBlock { python lca/603_green_metrics.py }
+
+# 等所有 P1 完成（最长 ~30 分钟）
+foreach ($j in $jobs_p1) { Wait-Job $j; Receive-Job $j }
+
+
+# =============================================================================
+# TIER 3 — 201 Ablation：DRFP 变体消融 + λ 扫描 + 全量 Benchmark
+# 完成后产生：drfp_ablation_meta.json、config.py 更新、full_benchmark_results.csv
+# =============================================================================
+
+python 201_ablation.py
+
+
+# =============================================================================
+# TIER 4 — POOL P2：201 完成后立刻全并行（302/303/304/305/801 互相独立）
+# 这些脚本都依赖 drfp_ablation_meta.json（由 201 产生），互相不依赖。
+# =============================================================================
+
+$jobs_p2 = @()
+$jobs_p2 += Start-Job -Name "p2_302_groupkfold"  -ScriptBlock { python 302_groupkfold_validation.py }
+$jobs_p2 += Start-Job -Name "p2_303_ssts"        -ScriptBlock { python 303_sample_size_sensitivity.py }
+$jobs_p2 += Start-Job -Name "p2_304_statsig"     -ScriptBlock { python 304_statistical_significance.py }
+$jobs_p2 += Start-Job -Name "p2_305_yrandom"     -ScriptBlock { python 305_y_randomization.py }
+$jobs_p2 += Start-Job -Name "p2_801_drfp_deep"   -ScriptBlock { python 801_drfp_ablation_deep_analysis.py }
+
+# 等待 P2（最长 ~30 分钟，302 跑 GroupKFold 最慢）
+foreach ($j in $jobs_p2) { Wait-Job $j; Receive-Job $j }
+
+
+# =============================================================================
+# TIER 5 — POOL P3：201 完成后立刻全并行（301 / 306 / 401 互相独立）
+# 它们都依赖 config.py:BEST_LAMBDA_PROP 和 drfp_ablation_meta.json，但互相不依赖。
+# =============================================================================
+
+$jobs_p3 = @()
+$jobs_p3 += Start-Job -Name "p3_301_main_benchmark" -ScriptBlock { python 301_benchmark.py }
+$jobs_p3 += Start-Job -Name "p3_306_external"       -ScriptBlock { python 306_external_validation.py }
+$jobs_p3 += Start-Job -Name "p3_401_persist"         -ScriptBlock { python 401_persist_best_pipeline.py }
+
+# 等所有 P3 完成
+foreach ($j in $jobs_p3) { Wait-Job $j; Receive-Job $j }
+
+
+# =============================================================================
+# TIER 6 — POOL P4：401 完成后跑虚拟筛选链（402 → 403 → 404 串联）
+# 注意 602 是 SOTA 对比，只读主表，可在 P1 时就跑；这里写出来只为完整性。
+# =============================================================================
+
+python 402_virtual_screening.py
+python 403_tanimoto_sensitivity.py
+python 404_hypothetical_screening.py
+
+# 602 SOTA 对比（如果 P1 时没跑，可补在这里）
+if (-not (Test-Path results_transformer_comparison/comparison_results.csv)) {
+    python analysis/602_sota_comparison.py
+}
+
+
+# =============================================================================
+# TIER 7 — 出图（按各自上游依赖触发）
+# =============================================================================
+
+# Fig.4 GroupKFold 验证图（需要 302 完成）
+python figures/fig4_groupkfold.py
+
+# Fig.2 预测 vs 真实散点（需要 401 完成，加载 saved_models/artifacts/）
+python figures/fig2_scatter.py
+
+# 主出图（聚合上述 + 自包含的 fig_s1/s2/abstract）
+python figures/paper_figures.py
+
+# 自包含的图表（不依赖任何上游，随时可跑）
+python figures/fig_s1.py
+python figures/fig_s2.py
+python figures/fig_abstract.py
+python figures/fig_abstract_chinese.py
+
+
+# =============================================================================
+# TIER-DFT — DFT 验证（独立分支，可与任意 Tier 并行）
+# =============================================================================
+
+# ---------- 13 分子 DFT (本地 Windows 机器) ----------
+cd "D:\machine-learning\CO2 cycloaddition\dft_validation"
+
+# Step 1: 生成 ORCA 输入（如果 P1 没跑过）
+if (-not (Test-Path *.inp)) { python ..\501_generate_dft_inputs.py }
+
+# Step 2: 跑 ORCA 6.1（约 30-60 分钟/分子）
+run_dft.bat
+
+# Step 3: 解析 ORCA 输出
+cd /d "D:\machine-learning\CO2 cycloaddition"
+python 510_parse_dft_outputs.py
+
+# Step 4: 在 DFT 几何上重跑 xTB（apples-to-apples）
+python 512_xtb_on_dft_geometry.py --solvent=gas --output xtb_on_dft_geometry_nosolv.csv
+
+# Step 5: DFT vs xTB 对比
+python 514_dft_vs_xtb_report.py ^
+        --xtb-summary dft_validation/xtb_on_dft_geometry_nosolv.csv ^
+        --dft-summary dft_validation/dft_results_summary.csv ^
+        --output  dft_validation/514_dft_vs_xtb_report.csv ^
+        --report  dft_validation/514_dft_vs_xtb_report.txt
+
+# Step 6: 出图
+python 520_dft_journal_figures.py
+
+
+# ---------- 50 分子 DFT（先集群，后本地合并） ----------
+# Step 1: 生成 50 个 ORCA 输入（如果 P1 没跑过）
+if (-not (Test-Path dft_validation_extended/inp_files/*.inp)) {
+    python 502_generate_dft_inputs_extended.py
+}
+
+# Step 2: 提交 SLURM 集群
+cd "D:\machine-learning\CO2 cycloaddition\dft_validation_extended"
+sbatch orca_launch.slurm
+
+# Step 3: 等集群返回后，同步 orca_outputs/ 回本地，然后：
+cd /d "D:\machine-learning\CO2 cycloaddition"
+python 511_parse_dft_outputs_extended.py            # → dft_extended_summary.csv
+python 513_xtb_on_dft_geometry_extended.py --solvent ""   # → xtb_on_dft_extended.csv
+
+# Step 4: 合并 13 + 50 = 63 分子对比
+python 515_dft_vs_xtb_report_extended.py            # → 514_dft_vs_xtb_extended.csv
+
+
+# =============================================================================
+# 完成检查
+# =============================================================================
+
+Write-Host "=" * 70
+Write-Host " 全部执行完毕。请检查以下关键输出文件："
+Write-Host "=" * 70
+
+# 主表 + 中间结果
+Test-Path co2_drfp_xtb_extended.csv                  | %{ if ($_) { "  ✓ co2_drfp_xtb_extended.csv" } else { "  ✗ co2_drfp_xtb_extended.csv 缺失" } }
+Test-Path results_lambda_ablation/lambda_results.csv  | %{ if ($_) { "  ✓ lambda_results.csv (201)" } else { "  ✗ lambda_results.csv 缺失" } }
+Test-Path results_lambda_ablation/lambda_results.csv  | %{ if ($_) { "  ✓ lambda_results.csv (201)" } else { "  ✗ lambda_results.csv 缺失" } }
+Test-Path results_best_pipeline/drfp_ablation_meta.json  | %{ if ($_) { "  ✓ drfp_ablation_meta.json (201)" } else { "  ✗ drfp_ablation_meta.json 缺失" } }
+Test-Path results_best_pipeline/full_benchmark_results.csv  | %{ if ($_) { "  ✓ full_benchmark_results.csv (201)" } else { "  ✗ full_benchmark_results.csv 缺失" } }
+Test-Path results_external_validation/external_validation_results.csv  | %{ if ($_) { "  ✓ external_validation_results.csv" } else { "  ✗ external_validation_results.csv 缺失" } }
+Test-Path ML_groupkfold_results.csv                   | %{ if ($_) { "  ✓ ML_groupkfold_results.csv (302)" } else { "  ✗ ML_groupkfold_results.csv 缺失" } }
+Test-Path saved_models/artifacts/pcl_ae_encoder.pt    | %{ if ($_) { "  ✓ saved_models (401)" } else { "  ✗ saved_models 缺失" } }
+Test-Path results_virtual_screening/top10_results.csv | %{ if ($_) { "  ✓ top10_results.csv (402)" } else { "  ✗ top10_results.csv 缺失" } }
+Test-Path results_drfp_ablation_deep/deep_analysis_report.txt | %{ if ($_) { "  ✓ deep_analysis_report.txt (801)" } else { "  ✗ deep_analysis_report.txt 缺失" } }
+Test-Path fig_dft_vs_xtb_extended.png                 | %{ if ($_) { "  ✓ fig_dft_vs_xtb_extended.png (515)" } else { "  ✗ fig_dft_vs_xtb_extended.png 缺失" } }

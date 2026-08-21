@@ -1,0 +1,13 @@
+# ORCA 6.1 - variant_13_ethyl_glycidyl_ether - Recommended for manuscript
+! B3LYP def2-TZVP Opt Freq D3BJ RIJCOSX
+%pal nprocs 16 end
+%method
+  Functional B3LYP
+  Basis def2-TZVP
+  Dispersion D3BJ
+end
+%output
+  Print[ P_Mulliken ] 1
+  Print[ P_Atombasis ] 1
+end
+* xyzfile 0 1 ..\xyz_files\variant_13_ethyl_glycidyl_ether.xyz

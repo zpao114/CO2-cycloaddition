@@ -1,0 +1,73 @@
+==============================================================================
+CO2_DRFP REPRO REPORT
+old baseline : D:\machine-learning\CO2 cycloaddition\co2_drfp.csv
+reproduced   : D:\machine-learning\CO2-cycloaddition\data\processed\co2_drfp.csv
+old size     : 36.9MB   mtime=1785552191.1649365
+new size     : 39.7MB   mtime=1786974662.928542
+==============================================================================
+
+[1] Column discovery
+  old cols (40): ['row_id', 'reactant_name', 'product_name', 'yield (%)', 'temperature (°)', 'pressure (MPa)', 'time (h)', 'catalyst_1_name', '...']
+  new cols (40): ['row_id', 'reactant_name', 'product_name', 'yield (%)', 'temperature (°)', 'pressure (MPa)', 'time (h)', 'catalyst_1_name', '...']
+  only in old (0): []
+  only in new (0): []
+
+[2] Column classification
+  old buckets: meta=20 smiles=11 fp=4 value=5
+  new buckets: meta=20 smiles=11 fp=4 value=5
+  first 5 fingerprint columns (old): ['drfp', 'drfp React', 'drfp wo cats', 'drfp wo sols']
+  first 5 fingerprint columns (new): ['drfp', 'drfp React', 'drfp wo cats', 'drfp wo sols']
+
+[3] Full load
+  old shape: (2316, 40)
+  new shape: (2490, 40)
+  row delta: new - old = 174
+
+[4] ID column discovery
+  id_old = 'row_id'
+  id_new = 'row_id'
+
+[5] Metadata column NaN / coverage
+    row_id                       old NaN=  0.0%   new NaN=  0.0%   delta= +0.0%
+    reactant_name                old NaN=  0.0%   new NaN=  0.0%   delta= +0.0%
+    product_name                 old NaN=  0.0%   new NaN=  0.0%   delta= +0.0%
+    yield (%)                    old NaN=  0.0%   new NaN=  0.0%   delta= +0.0%
+    catalyst_1_name              old NaN=  0.0%   new NaN=  0.0%   delta= +0.0%
+    catalyst_1_loading_mol%      old NaN= 99.3%   new NaN= 99.3%   delta= +0.1%
+    catalyst_2_name              old NaN= 94.7%   new NaN= 92.8%   delta= -1.9%
+    catalyst_2_loading_mol%      old NaN= 99.8%   new NaN= 99.8%   delta= +0.0%
+    catalyst_3_name              old NaN= 99.0%   new NaN= 98.7%   delta= -0.2%
+    catalyst_3_loading_mol%      old NaN= 99.8%   new NaN= 99.8%   delta= +0.0%
+    catalyst_4_name              old NaN= 99.5%   new NaN= 99.5%   delta= +0.0%
+    catalyst_4_loading_mol%      old NaN= 99.9%   new NaN= 99.9%   delta= +0.0%
+    reagent_1_name               old NaN=100.0%   new NaN=100.0%   delta= +0.0%
+    reagent_2_name               old NaN=100.0%   new NaN=100.0%   delta= +0.0%
+    solvent_1                    old NaN= 51.6%   new NaN= 51.0%   delta= -0.6%
+    solvent_2                    old NaN= 95.6%   new NaN= 95.7%   delta= +0.1%
+    solvent_3                    old NaN= 99.1%   new NaN= 98.9%   delta= -0.1%
+    solvent_4                    old NaN= 99.8%   new NaN= 99.8%   delta= +0.0%
+    catalyst_system_type         old NaN=  0.0%   new NaN=  0.0%   delta= +0.0%
+    all_solvents_normalized      old NaN= 51.6%   new NaN= 51.0%   delta= -0.6%
+
+[6] ID overlap
+  old unique ids : 2316
+  new unique ids : 2490
+  intersection   : 2279
+  only in old    : 37
+  only in new    : 211
+  recall (common / old) = 98.4%
+  precision (common / new) = 91.5%
+  F1 (2*common / (old+new)) = 94.8%
+
+[7] Fingerprint identity on common rows
+  fp cols in old: 4
+  fp cols in new: 4
+  fp cols in both: 4
+  aligned rows: 2279
+  sampled 200 rows, 800 bits total
+  differing bits: 0 (0.000% of bits)
+  rows exactly equal: 200 / 200  (100.0%)
+
+[8] Verdict
+  score = 91.5/100
+  → GOOD: 大部分一致 (90-99%)

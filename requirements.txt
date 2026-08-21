@@ -1,0 +1,51 @@
+# CO2 Cycloaddition ML Pipeline — runtime dependencies
+# Pinned versions reflect the tested environment at last end-to-end run
+# (2026-08-21, conda env `env_drfp` at D:\co2\env_drfp).
+#
+# Reproduce with:
+#   pip install -r requirements.txt
+#   conda install -c conda-forge xtb==22.1
+#
+# Versions marked `==` are the ones verified by the latest run;
+# ranges (>=, <) on a few high-velocity packages allow pip to pick
+# recent compatible releases on a fresh install.
+
+# --- core numerical / tabular ---
+numpy==1.26.4
+pandas>=2.0,<4.0
+scipy==1.13.1
+
+# --- ML ---
+scikit-learn==1.9.0
+xgboost>=2.0,<3.0
+lightgbm>=4.0,<5.0
+
+# --- interpretability ---
+shap==0.44.0
+
+# --- deep learning (DualBranchANN, Transformer) ---
+torch>=2.0,<3.0
+
+# --- chemistry ---
+rdkit>=2024.3.1
+Mordred==1.2.0
+drfp==0.3.6
+
+# --- I/O / config ---
+PyYAML>=6.0
+tqdm>=4.64
+joblib>=1.2
+openpyxl>=3.0
+networkx>=2.8
+
+# --- plotting ---
+matplotlib==3.7.1
+seaborn>=0.13
+pillow>=10.0
+
+# --- logging ---
+loguru>=0.7
+
+# --- external CLIs (not pip-installable; listed for completeness) ---
+# xtb >= 22.1       # https://github.com/grimme-lab/xtb        (used by 104_run_xtb.py)
+# ORCA >= 6.0       # https://orcaforum.cec.mpg.de/           (used by 5xx_*)

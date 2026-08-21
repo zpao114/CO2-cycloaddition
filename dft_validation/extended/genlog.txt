@@ -1,0 +1,65 @@
+502_generate_dft_inputs_extended.py  -  2026-08-01 14:34:54
+Total molecules: 50
+Generated: 50
+Failed: 0
+
+Family counts:
+  variant     : 15
+  solvent     : 12
+  ion_pair    : 7
+  substrate   : 6
+  complex     : 5
+  catalyst    : 4
+  product     : 1
+
+Generated molecules:
+  [ 1] epoxide_4_methyl_1_2_epoxybutane                   substrate  -> epoxide_4_methyl_1_2_epoxybutane.inp
+  [ 2] epoxide_5_1_2_epoxypentane                         substrate  -> epoxide_5_1_2_epoxypentane.inp
+  [ 3] epoxide_6_1_2_epoxyhexane                          substrate  -> epoxide_6_1_2_epoxyhexane.inp
+  [ 4] epoxide_7_cyclohexene_oxide                        substrate  -> epoxide_7_cyclohexene_oxide.inp
+  [ 5] epoxide_8_glycidol                                 substrate  -> epoxide_8_glycidol.inp
+  [ 6] cat_4_TBAB                                         catalyst   -> cat_4_TBAB.inp
+  [ 7] cat_5_BMIM_BF4                                     catalyst   -> cat_5_BMIM_BF4.inp
+  [ 8] cat_6_BMIM_Cl                                      catalyst   -> cat_6_BMIM_Cl.inp
+  [ 9] cat_7_TMEDA                                        catalyst   -> cat_7_TMEDA.inp
+  [10] solv_4_MeCN                                        solvent    -> solv_4_MeCN.inp
+  [11] solv_5_CH2Cl2                                      solvent    -> solv_5_CH2Cl2.inp
+  [12] solv_6_EtOH                                        solvent    -> solv_6_EtOH.inp
+  [13] il_split_1_TBAI_cation                             ion_pair   -> il_split_1_TBAI_cation.inp
+  [14] il_split_2_TBAI_anion                              ion_pair   -> il_split_2_TBAI_anion.inp
+  [15] il_split_3_BMIM_cation                             ion_pair   -> il_split_3_BMIM_cation.inp
+  [16] il_split_4_BMIM_BF4_anion                          ion_pair   -> il_split_4_BMIM_BF4_anion.inp
+  [17] il_split_5_BMIM_Cl_anion                           ion_pair   -> il_split_5_BMIM_Cl_anion.inp
+  [18] complex_1_PO_TBAI                                  complex    -> complex_1_PO_TBAI.inp
+  [19] complex_2_PO_ZnBr2                                 complex    -> complex_2_PO_ZnBr2.inp
+  [20] complex_3_SO_TBAI                                  complex    -> complex_3_SO_TBAI.inp
+  [21] complex_4_SO_ZnBr2                                 complex    -> complex_4_SO_ZnBr2.inp
+  [22] complex_5_DBU_PO                                   complex    -> complex_5_DBU_PO.inp
+  [23] variant_1_allyl_glycidyl_ether                     variant    -> variant_1_allyl_glycidyl_ether.inp
+  [24] variant_2_butyl_glycidyl_ether                     variant    -> variant_2_butyl_glycidyl_ether.inp
+  [25] variant_3_phenyl_glycidyl_ether                    variant    -> variant_3_phenyl_glycidyl_ether.inp
+  [26] variant_4_benzyl_glycidyl_ether                    variant    -> variant_4_benzyl_glycidyl_ether.inp
+  [27] variant_5_glycidyl_methacrylate                    variant    -> variant_5_glycidyl_methacrylate.inp
+  [28] variant_6_epichlorohydrin                          variant    -> variant_6_epichlorohydrin.inp
+  [29] variant_7_epibromohydrin                           variant    -> variant_7_epibromohydrin.inp
+  [30] variant_8_glycidyl_amide                           variant    -> variant_8_glycidyl_amide.inp
+  [31] variant_9_1_2_epoxy_3_phenoxypropane               variant    -> variant_9_1_2_epoxy_3_phenoxypropane.inp
+  [32] variant_10_tert_butyl_glycidyl_ether               variant    -> variant_10_tert_butyl_glycidyl_ether.inp
+  [33] variant_11_2_3_epoxy_propyl_hexanoate              variant    -> variant_11_2_3_epoxy_propyl_hexanoate.inp
+  [34] variant_12_methyl_glycidyl_ether                   variant    -> variant_12_methyl_glycidyl_ether.inp
+  [35] variant_13_ethyl_glycidyl_ether                    variant    -> variant_13_ethyl_glycidyl_ether.inp
+  [36] variant_14_isopropyl_glycidyl_ether                variant    -> variant_14_isopropyl_glycidyl_ether.inp
+  [37] variant_15_cyclohexyl_glycidyl_ether               variant    -> variant_15_cyclohexyl_glycidyl_ether.inp
+  [38] extra_1_CO2                                        substrate  -> extra_1_CO2.inp
+  [39] extra_2_cyclic_carbonate                           product    -> extra_2_cyclic_carbonate.inp
+  [40] extra_3_water                                      solvent    -> extra_3_water.inp
+  [41] extra_4_methanol                                   solvent    -> extra_4_methanol.inp
+  [42] extra_5_isopropanol                                solvent    -> extra_5_isopropanol.inp
+  [43] extra_6_thf                                        solvent    -> extra_6_thf.inp
+  [44] extra_7_toluene                                    solvent    -> extra_7_toluene.inp
+  [45] extra_8_n_hexane                                   solvent    -> extra_8_n_hexane.inp
+  [46] extra_9_ethyl_acetate                              solvent    -> extra_9_ethyl_acetate.inp
+  [47] extra_10_benzene                                   solvent    -> extra_10_benzene.inp
+  [48] extra_11_aniline                                   solvent    -> extra_11_aniline.inp
+  [49] extra_12_carbonate_anion                           ion_pair   -> extra_12_carbonate_anion.inp
+  [50] extra_13_acetate_anion                             ion_pair   -> extra_13_acetate_anion.inp

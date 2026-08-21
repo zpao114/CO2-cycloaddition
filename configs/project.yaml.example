@@ -1,0 +1,38 @@
+project:
+  name: CO2 Cycloaddition ML Pipeline
+  short_name: co2-cycloaddition
+  version: 1.0.0
+  license: MIT
+  target_journal: ACS Catalysis
+  maintained_by: zpao114
+  # Your contact email for bug reports / collaboration inquiries.
+  # Replace with your actual email or leave empty for anonymous distribution.
+  contact: <your-email@example.com>
+  status: manuscript-ready
+
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  external_data: data/external
+  results: results
+  figures: figures
+  papers: docs/paper
+  supplementary: docs/supplementary
+
+model:
+  best_lambda_prop: 0.5
+  best_latent_dim: 128
+  best_drfp_variant: reactants
+  canonical_seed: 2026
+  primary_model: DualBranchANN
+  baselines: [RF, XGBoost, LightGBM, StandardAE, PCL_AE_128]
+
+data_funnel:
+  reaxys_extract_rows: 5263
+  after_cleaning_rows: 3733
+  cleaned_rows: 2602
+  smiles_valid_rows: 2316
+  dropped_rows: 286
+  substrate_count: 5
+  mechanism_classes: 6
+  raw_features_columns: 87

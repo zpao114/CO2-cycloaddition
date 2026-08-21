@@ -1,0 +1,9 @@
+! B97-3c OptTS NumFreq SMD(DMSO) VeryTightSCF
+%maxcore 4000
+%pal
+  nprocs 1
+end
+%geom
+  MaxIter 250
+end
+* xyzfile 0 2 ts2_optts.xyz

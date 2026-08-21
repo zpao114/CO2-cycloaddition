@@ -1,0 +1,11 @@
+# ORCA input for CO2 cycloaddition epoxide HOMO/LUMO calculation
+# Using B3LYP-D3BJ/def2-TZVP for accurate frontier orbital energies
+
+! B3LYP D3BJ def2-TZVP OPT Grid4 TightSCF
+
+%maxcore 4000
+
+%pal nprocs 8
+    end
+
+* xyzfile 0 1 substrate.xyz

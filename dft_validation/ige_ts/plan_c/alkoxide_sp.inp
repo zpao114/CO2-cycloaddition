@@ -1,0 +1,10 @@
+! B97-3c SMD(DMSO) VeryTightSCF
+%maxcore 4000
+%pal
+  nprocs 1
+end
+%scf
+  GUESS MORead
+  MaxIter 300
+end
+* xyzfile 0 2 alkoxide_int.xyz

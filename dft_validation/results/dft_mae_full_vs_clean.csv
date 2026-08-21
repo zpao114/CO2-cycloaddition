@@ -1,0 +1,9 @@
+set,descriptor,N,MAE,Pearson_R,Spearman_rho,unit
+full_N18,HOMO,18,5.202,-0.0731,0.5142,eV
+full_N18,LUMO,18,5.312,0.5756,0.636,eV
+full_N18,Gap,18,2.534,0.6015,0.6526,eV
+full_N18,Dipole,18,0.336,0.9734,0.9762,Debye
+clean_N15_noTBAI,HOMO,15,3.994,0.9816,0.9857,eV
+clean_N15_noTBAI,LUMO,15,5.072,0.7274,0.9179,eV
+clean_N15_noTBAI,Gap,15,1.266,0.8136,0.8286,eV
+clean_N15_noTBAI,Dipole,15,0.316,0.9959,0.9777,Debye
