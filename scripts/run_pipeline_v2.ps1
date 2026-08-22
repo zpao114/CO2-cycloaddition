@@ -370,14 +370,14 @@ Register-Step -Key "501_dft_inputs"    -Script "$ROOT\src\dft\501_generate_dft_i
 Register-Step -Key "510_parse_dft"     -Script "$ROOT\src\dft\510_parse_dft_outputs.py"                       -Force $true
 Register-Step -Key "512_xtb_dft"       -Script "$ROOT\src\dft\512_xtb_on_dft_geometry.py"                     -Force $true
 Register-Step -Key "514_dft_vs_xtb"    -Script "$ROOT\src\dft\514_dft_vs_xtb_report.py"                       -Force $true
-Register-Step -Key "520_figs"          -Script "$ROOT\src\dft\520_dft_journal_figures.py"                     -Force $false
+Register-Step -Key "520_figs"          -Script "$ROOT\dft_validation\scripts\520_dft_journal_figures.py"           -Force $false
 Register-Step -Key "514b_dft_ts"       -Script "$ROOT\src\dft\514b_dft_transition_state.py"                    -Force $true
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 13. TIER_S7  (optional: 713 generates extra ORCA inputs, 502 regenerates extended DFT inputs)
+# 13. TIER_S7  (502 regenerates extended DFT inputs; 713_orca_gen removed —
+#     its functionality is now covered by 502 + 514b_dft_transition_state.py)
 # ═══════════════════════════════════════════════════════════════════════════
 Register-Step -Key "502_dft_extended"  -Script "$ROOT\src\dft\502_generate_dft_inputs_extended.py"                -Force $false
-Register-Step -Key "713_orca_gen"      -Script "$ROOT\src\dft\713_orca_dft_generator.py"                          -Force $false
 
 # ═══════════════════════════════════════════════════════════════════════════
 # MECHANISM / LOSO-IMPROVED / DIAGNOSTIC steps
@@ -552,7 +552,10 @@ function tier_dft {
 }
 
 function tier_s7 {
-    StepOptional "713_orca_gen"
+    # tier_s7 currently wraps only the extended DFT input regeneration (502).
+    # The previous StepOptional "713_orca_gen" was retired: its functionality
+    # is now covered by 502_dft_extended + 514b_dft_transition_state.
+    Step "502_dft_extended"
 }
 
 # ========================================================================
@@ -583,7 +586,7 @@ $TierTimes = @{
     "tier_abstract"   = "~2 min"
     "tier_figures"    = "~10 min"
     "tier_dft"        = "~45 min  (ORCA runs separately; mechanism steps run after ORCA)"
-    "tier_s7"         = "varies"
+    "tier_s7"         = "~5-10 min  (502_dft_extended: regenerate extended DFT inputs)"
 }
 
 $TierNotes = @{
@@ -592,6 +595,7 @@ $TierNotes = @{
     "tier_si"    = "807/808/809/810 = SHAP control experiments (#5/#3/#4/#6)"
     "tier_regen" = "must run AFTER tier_si (reads SI CSVs)"
     "tier_dft"   = "needs WSL; 514b generates TS inputs, user runs ORCA manually; 601→602→603→702→705→706→901→902 run after ORCA"
+    "tier_s7"    = "optional regeneration of extended DFT inputs (502)"
 }
 
 # ========================================================================
