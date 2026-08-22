@@ -137,6 +137,7 @@ RESULTS_MECHANISM              = PROJECT_ROOT / "results_mechanism"
 RESULTS_TRANSFERABILITY        = PROJECT_ROOT / "results_transferability"
 DFT_VALIDATION                 = PROJECT_ROOT / "dft_validation"
 RESULTS_SHAP_COMPREHENSIVE     = PROJECT_ROOT / "results_shap_comprehensive"
+RESULTS_PUBLICATION_BIAS      = PROJECT_ROOT / "results_publication_bias_sensitivity"
 
 # ── WSL/ORCA path ─────────────────────────────────────────────────────────────
 WSL_ORCA_ROOT = R"\\wsl.localhost\Ubuntu\home\zzj\orca"
