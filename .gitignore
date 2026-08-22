@@ -81,6 +81,8 @@ pcl_drfp_latent.npy.meta.json
 *.bas3
 *.bas4
 *.bas5
+*.scfgrad.inp
+*.smd.grd
 *.diisao.tmp.*
 *.diise.tmp.*
 *.diist.tmp.*

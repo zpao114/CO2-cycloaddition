@@ -18,9 +18,10 @@ for the optional DFT validation set.
 
 The project consists of 8 first-level directories: `src`, `scripts`,
 `configs`, `data`, `assets`, `figures`, `dft_validation`, and `docs`.
-Two additional directories (`notebooks/`, `tests/`) are kept for
-exploratory work and a minimal test stub. Outputs are written to
-`results/` (gitignored).
+Two additional directories (`notebooks/`, `tests/`) are kept as
+minimal placeholders: `notebooks/` is empty; `tests/` and
+`src/features/` and `src/analysis/transferability/` contain only
+`__init__.py` stubs. Outputs are written to `results/` (gitignored).
 
 | Directory | Description |
 |-----------|-------------|
@@ -85,7 +86,6 @@ Key files inside `screening/`: `403b_ranking_metrics.py`.
 | `loso/` | Leave-one-substrate-out (LOSO) / leave-one-mechanism-out (LOMO) cross-validation and per-substrate SHAP attribution |
 | `mechanism/` | Catalyst-mechanism classification, substrate-feature table, transferability matrix |
 | `diagnostics/` | Paper-ready figures, substrate × catalyst coverage matrix, CHO mechanistic diagnostic |
-| `transferability/` | Catalyst-class × substrate-class transferability matrix (mirror of mechanism) |
 
 Key files inside `loso/`: `700_loso_lomo_cv.py`, `701_per_substrate_shap.py`,
 `702_integrated_report.py`, `705_improved_loso.py`,
@@ -153,8 +153,6 @@ These regenerate the SI tables deterministically from the processed CSVs.
 | `RUN_ORDER.md` | Documented execution order for the numbered scripts |
 | `verify_golden.py` | Golden-output verifier (re-runs short sanity checks against saved results) |
 | `check_data_split.py` | Validates that data splits are reproducible |
-| `tier_runners/` | Per-tier runners called by `run_pipeline_v2.ps1` |
-| `hooks/` | Pipeline hooks (pre/post per-tier) |
 
 ---
 
@@ -227,9 +225,7 @@ log for the corresponding xTB run.
 | `inputs/` | Single-point validation inputs |
 | `ts_5_substrates/` | Transition-state runs for the 5 main substrates |
 | `ige_ts/` | IGE (isopropyl glycidyl ether) transition-state runs |
-| `run_scripts/` | ORCA submission scripts |
 | `xtb_outputs/` | xTB outputs that pair with the ORCA runs |
-| `supplementary/` | DFT-vs-xTB supplementary outputs |
 | `results/` | Tidy CSVs from `510_parse_dft_outputs.py` |
 
 The plan and intent of this validation set are documented in
