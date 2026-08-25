@@ -83,6 +83,8 @@ pcl_drfp_latent.npy.meta.json
 *.bas5
 *.scfgrad.inp
 *.smd.grd
+# Generic "*.tmp.N" ORCA scratch (e.g., *.propint.tmp.0, *.soscfv.tmp.0)
+*.tmp.[0-9]*
 *.diisao.tmp.*
 *.diise.tmp.*
 *.diist.tmp.*
