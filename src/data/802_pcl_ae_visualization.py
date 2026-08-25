@@ -162,13 +162,19 @@ class PCLAE(nn.Module):
 # 3. Training
 # ----------------------------------------------------------------------
 
-def train_standard_ae(X, latent_dim=128, epochs=60, batch_size=64, lr=1e-3):
+def train_standard_ae(X, latent_dim=128, epochs=60, batch_size=64, lr=1e-3,
+                      return_recon=False):
     """Train Standard AE-128 without yield supervision.
 
     DRFP-fingerprint is binary (0/1), so we clamp the input to [0,1]
     before BCE. The scaler is fit on the raw input but transformed via
     clamp + scale-by-max so the decoder learns to reproduce bit-patterns
-    rather than arbitrary reals."""
+    rather than arbitrary reals.
+
+    If ``return_recon=True``, the function also returns the DRFP
+    reconstruction (sigmoid output, in [0,1]) so the caller can
+    compute reconstruction-variance-explained.
+    """
     print('[1/4] Training Standard AE-128 (no yield supervision) ...')
     # DRFP is binary; clip to [0,1] and use BCE reconstruction loss
     X_clip = np.clip(X, 0.0, 1.0).astype(np.float32)
@@ -197,18 +203,25 @@ def train_standard_ae(X, latent_dim=128, epochs=60, batch_size=64, lr=1e-3):
 
     model.eval()
     with torch.no_grad():
-        latent = model.encode(torch.tensor(X_clip, dtype=torch.float32).to(DEVICE)).cpu().numpy()
+        xh, latent = model(torch.tensor(X_clip, dtype=torch.float32).to(DEVICE))
+        latent = latent.cpu().numpy()
+        recon = xh.cpu().numpy()
     print(f'  Standard AE done. Latent shape: {latent.shape}')
+    if return_recon:
+        return latent, recon, sc
     return latent, sc
 
 
 def train_pcl_ae(X, y, latent_dim=128, epochs=80, batch_size=64, lr=1e-3,
-                 lambda_prop=None):
+                 lambda_prop=None, return_recon=False):
     """Train PCL-AE with property supervision.
 
     If ``lambda_prop`` is None, reads from config.py:BEST_LAMBDA_PROP.
 
-    Same input clipping as train_standard_ae (DRFP is binary)."""
+    Same input clipping as train_standard_ae (DRFP is binary).
+    If ``return_recon=True``, returns the DRFP reconstruction in
+    addition to the latent representation.
+    """
     if lambda_prop is None:
         lambda_prop = float(BEST_LAMBDA_PROP)
     print(f'[2/4] Training PCL-AE-128 (lambda = {lambda_prop}) ...')
@@ -238,8 +251,12 @@ def train_pcl_ae(X, y, latent_dim=128, epochs=80, batch_size=64, lr=1e-3,
 
     model.eval()
     with torch.no_grad():
+        xh, _ = model(torch.tensor(X_clip, dtype=torch.float32).to(DEVICE))
         latent = model.encode(torch.tensor(X_clip, dtype=torch.float32).to(DEVICE)).cpu().numpy()
+        recon = xh.cpu().numpy()
     print(f'  PCL-AE done. Latent shape: {latent.shape}')
+    if return_recon:
+        return latent, recon, None
     return latent, None
 
 
@@ -336,14 +353,27 @@ def plot_umap(z_std, z_pcl, y, cat_family, out_path):
 # 5. Yield-gradient correlation (the headline metric)
 # ----------------------------------------------------------------------
 
-def yield_gradient_correlation(z_std, z_pcl, y):
+def yield_gradient_correlation(z_std, z_pcl, y, z_std_recon=None,
+                              X_drfp=None, z_pcl_recon=None):
     """Compute per-dimension correlation of latent z with yield y.
     A latent space that 'encodes yield' should have more dimensions with
-    |corr| > 0.1."""
+    |corr| > 0.1.
+
+    Also compute:
+      - reconstruction_variance_explained:
+          1 - Var(X - X_recon) / Var(X), separately for std-AE and
+          PCL-AE, when reconstructed DRFP matrices are supplied.
+      - rho_yield: Spearman correlation between the per-sample latent
+          representation (mean across dimensions) and yield, used as
+          a single-number summary of yield encoding.
+    """
     print('\n[4/4] Yield-latent correlation analysis ...')
-    from scipy.stats import pearsonr
+    from scipy.stats import pearsonr, spearmanr
     rows = []
-    for name, Z in [('standard_ae', z_std), ('pcl_ae', z_pcl)]:
+    for name, Z, Z_recon in [
+        ('standard_ae', z_std, z_std_recon),
+        ('pcl_ae', z_pcl, z_pcl_recon),
+    ]:
         n_high = 0
         abs_corrs = []
         for k in range(Z.shape[1]):
@@ -351,6 +381,17 @@ def yield_gradient_correlation(z_std, z_pcl, y):
             abs_corrs.append(abs(r))
             if abs(r) > 0.1:
                 n_high += 1
+        # Reconstruction variance explained (1 - SSE / SST).
+        recon_var_explained = float('nan')
+        if Z_recon is not None and X_drfp is not None:
+            err = X_drfp - Z_recon
+            sse = float(np.var(err))
+            sst = float(np.var(X_drfp))
+            if sst > 0:
+                recon_var_explained = float(1.0 - sse / sst)
+        # Spearman rho of latent-mean with yield.
+        latent_mean = Z.mean(axis=1)
+        rho_y, _ = spearmanr(latent_mean, y)
         rows.append({
             'model': name,
             'n_dims': Z.shape[1],
@@ -358,6 +399,8 @@ def yield_gradient_correlation(z_std, z_pcl, y):
             'fraction': n_high / Z.shape[1],
             'mean_|r|': float(np.mean(abs_corrs)),
             'max_|r|': float(np.max(abs_corrs)),
+            'rho_yield': float(rho_y),
+            'reconstruction_variance_explained': recon_var_explained,
         })
     df = pd.DataFrame(rows)
     print(df.to_string(index=False))
@@ -475,8 +518,13 @@ def main():
     df, X_drfp, y, cat_family, reactant = load_data()
 
     # Train both autoencoders
-    z_std, _ = train_standard_ae(X_drfp, latent_dim=128, epochs=60)
-    z_pcl, _ = train_pcl_ae(X_drfp, y, latent_dim=128, epochs=80, lambda_prop=BEST_LAMBDA_PROP)
+    z_std, recon_std, _ = train_standard_ae(
+        X_drfp, latent_dim=128, epochs=60, return_recon=True
+    )
+    z_pcl, recon_pcl, _ = train_pcl_ae(
+        X_drfp, y, latent_dim=128, epochs=80,
+        lambda_prop=BEST_LAMBDA_PROP, return_recon=True
+    )
 
     np.save(os.path.join(OUT_DIR, 'standard_ae_latent.npy'), z_std)
     np.save(os.path.join(OUT_DIR, 'pcl_ae_latent.npy'), z_pcl)
@@ -487,7 +535,11 @@ def main():
     plot_umap(z_std, z_pcl, y, cat_family,
                 os.path.join(OUT_DIR, 'figure_pcl_umap.png'))
 
-    yield_df = yield_gradient_correlation(z_std, z_pcl, y)
+    yield_df = yield_gradient_correlation(
+        z_std, z_pcl, y,
+        z_std_recon=recon_std, X_drfp=X_drfp,
+        z_pcl_recon=recon_pcl,
+    )
     kw_df = kruskal_per_dim(z_std, z_pcl, cat_family)
     sil_df = silhouette_per_family(z_std, z_pcl, cat_family)
 

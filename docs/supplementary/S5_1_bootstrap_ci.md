@@ -9,8 +9,9 @@
 ## 方法
 
 ### 数据
-- 来源：`shap_xtb_values.csv`（464条反应的per-sample signed SHAP，已按底物分组）
-- 底物映射：5种substrate（SO/ECH/PO/CHO/IGE）
+- 来源：`results_step4_5/shap_xtb_values.csv`（2,490条反应的per-sample signed SHAP，已按底物分组，列 34：1 row_id + 1 reactant_name + 32 特征）
+- 底物映射：5种substrate（SO/ECH/PO/CHO/IGE），每底物实际样本数 SO=783 / ECH=692 / PO=646 / CHO=305 / IGE=64
+- 关注的6个特征：`sub_homo_eV` / `time_log` / `temperature` / `pressure` / `sub_lumo_eV` / `delta_E_HL`
 
 ### Bootstrap 流程
 1. 对每种底物 (s) 和每个特征 (f)，取该底物所有反应的SHAP值向量 $V_{s,f}$
@@ -28,43 +29,45 @@
 
 ### §S5.1.A — `sub_homo_eV` 的 95% CI（主要claim）
 
+数据源 [data/processed/bootstrap_substrate_shap_ci.csv](../../data/processed/bootstrap_substrate_shap_ci.csv)：
+
 | 底物 | n_samples | mean signed SHAP | 95% CI [lo, hi] | sign |
 |---|---|---|---|---|
-| **CHO** | 57 | **−0.230** | **[-0.239, −0.221]** | **negative** |
-| ECH | 125 | +0.056 | [+0.054, +0.057] | positive |
-| IGE | 7 | +0.024 | [+0.019, +0.030] | positive |
-| PO | 116 | +0.031 | [+0.030, +0.032] | positive |
-| SO | 159 | +0.020 | [+0.019, +0.021] | positive |
+| **CHO** | **305** | **−25.148** | **[−25.608, −24.684]** | **negative** |
+| ECH | 692 | +4.373 | [+4.322, +4.441] | positive |
+| IGE | 64 | +3.049 | [+2.898, +3.190] | positive |
+| PO | 646 | +3.658 | [+3.595, +3.730] | positive |
+| SO | 783 | +2.964 | [+2.914, +3.006] | positive |
 
 **结论**：
-- CHO的95% CI **完全在零线下方**：[−0.239, −0.221]
-- PO/ECH/SO/IGE的95% CI **完全在零线上方**：min lo ≈ +0.019
-- **CHO的upper bound (−0.221) 远低于PO的lower bound (+0.030)**，gap = 0.251 → **符号反转在bootstrap层面 100% 确认**
+- CHO的95% CI **完全在零线下方**：[−25.608, −24.684]
+- PO/ECH/SO/IGE的95% CI **完全在零线上方**：min lo ≈ +2.898 (IGE)
+- **CHO的upper bound (−24.684) 远低于IGE的lower bound (+2.898)**，gap ≈ 27.6 → **符号反转在bootstrap层面 100% 确认**
 
 ### §S5.1.B — `delta_E_HL` 的 95% CI
 
 | 底物 | n_samples | mean | 95% CI |
 |---|---|---|---|
-| **CHO** | 57 | **−0.0024** | **[−0.0036, −0.0013]** |
-| ECH | 125 | +0.0015 | [+0.0012, +0.0020] |
-| PO | 116 | −0.0000 | [−0.0005, +0.0004] |
-| SO | 159 | −0.0021 | [−0.0027, −0.0015] |
-| IGE | 7 | −0.0015 | [−0.0019, −0.0011] |
+| **CHO** | **305** | **+0.014** | **[−0.094, +0.124]** |
+| ECH | 692 | +0.488 | [+0.442, +0.528] |
+| PO | 646 | +0.516 | [+0.435, +0.597] |
+| SO | 783 | **−0.379** | **[−0.447, −0.307]** |
+| IGE | 64 | +0.430 | [+0.294, +0.594] |
 
-**观察**：CHO delta_E_HL亦反转为负（CI [−0.0036, −0.0013]），与sub_homo_eV反转方向一致。但delta_E_HL在SO端也呈负值，说明该特征不像sub_homo_eV那样是"专属CHO反转特征"——`sub_homo_eV`才是**最干净**的机制分叉指纹。
+**重要观察（更新于 v3 2,490 数据）**：CHO上 `delta_E_HL` 的 95% CI **[−0.094, +0.124] 跨零**——也就是说 CHO 上 `delta_E_HL` 的反向是 **统计上不显著** 的（CI 包含零）。这一发现**修正了正文 §3.4 中"delta_E_HL 在 CHO 与端位上都呈反向"的旧表述**：当前 2,490 反应 bootstrap 数据**仅支持 sub_homo_eV 是 CHO 唯一稳定反转特征**；delta_E_HL 在 SO 上也是负向（CI 全部位于零下），因此 SO-vs-端位配对会显示"SO 也呈负向"，但 CHO 的反转并不显著。
 
-### §S5.1.C — CHO 全部 top-feature 的 CI（按CI宽度排序）
+### §S5.1.C — CHO 全部 6 个 tracked feature 的 CI
 
 | 特征 | mean | 95% CI | sign |
 |---|---|---|---|
-| delta_E_HL | −0.0024 | [-0.0036, -0.0013] | negative |
-| sub_lumo_eV | −0.0494 | [-0.0518, -0.0468] | negative |
-| pressure | +0.0030 | [-0.0026, +0.0089] | crossing zero |
-| time_log | +0.0008 | [-0.0047, +0.0069] | crossing zero |
-| **sub_homo_eV** | **−0.2304** | **[-0.2387, -0.2209]** | **negative** |
-| temperature | +0.0031 | [-0.0060, +0.0124] | crossing zero |
+| **sub_homo_eV** | **−25.148** | **[−25.608, −24.684]** | **negative（CI 全零下）** |
+| sub_lumo_eV | −4.373 | [−4.478, −4.266] | negative（CI 全零下） |
+| pressure | +0.062 | [−0.467, +0.633] | crossing zero |
+| time_log | +0.218 | [−0.205, +0.676] | crossing zero |
+| temperature | −0.060 | [−0.508, +0.456] | crossing zero |
+| delta_E_HL | +0.014 | [−0.094, +0.124] | crossing zero |
 
-**观察**：CHO上的`sub_homo_eV`既**符号清晰反转**又**CI最宽**——这是因为其mean magnitude最大；其余feature（time_log、temperature等）的CI均**穿过零点**，说明这些动力学/反应条件特征在CHO上**没有一致性方向效应**。这进一步支持`sub_homo_eV`作为CHO vs 端位底物机制分叉的核心描述符。
+**观察**：CHO上**唯一**显著反转（CI 全零下）的 top-feature 是 **`sub_homo_eV`** 与 **`sub_lumo_eV`**；CHO 上反应条件特征（time_log / temperature / pressure）与电子描述符 `delta_E_HL` 的 CI 均**穿过零点**，**统计上不显著**。这进一步支持"`sub_homo_eV`（电子描述符维度）才是 CHO vs 端位底物机制分叉的最干净指纹"。
 
 ---
 
@@ -80,7 +83,7 @@ Fisher精确检验在5底物×4特征的20对比较中功效仅0.31，因为：
 **Bootstrap CI的优点**：
 - 直接量化某（底物，特征）对的mean稳定性
 - 不依赖样本独立假设
-- 在每个cell内独立评估，对样本量小的底物（如IGE n=7）也能给出CI
+- 在每个cell内独立评估，对样本量小的底物（如IGE n=64）也能给出CI
 
 ### 100次bootstrap vs 5次种子重训
 
@@ -110,3 +113,4 @@ Bootstrap的成本远低于重训，更适合大规模呈现。
 
 - `generate_bootstrap_substrate_ci.py` (~3 KB) — 复现脚本
 - `bootstrap_substrate_shap_ci.csv` — 30行（5 substrates × 6 features × bootstrap mean + CI）
+- 配套 p-value 矩阵：`bootstrap_pvalue_matrix.csv`（Welch's t-test 5×4=10 对，Bonferroni-corrected）

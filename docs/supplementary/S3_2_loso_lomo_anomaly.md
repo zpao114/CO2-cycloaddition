@@ -2,7 +2,7 @@
 
 ## LOSO×LOMO 非单调现象：测试集几何结构解释
 
-**承接正文 §3.2**：表 2 中 LOSO×LOMO = 0.22 反高于 LOSO = −0.05 的现象，正文只给出结论性陈述；本节展开技术论证。
+**承接正文 §3.2**：表 2 中 LOSO×LOMO = 0.195 反高于 LOSO = −0.068 的现象，正文只给出结论性陈述；本节展开技术论证。数据来源：[results_step4/summary_protocol.csv](../results_step4/summary_protocol.csv)（XGBoost 在全集 raw 2,490 上 8 协议 × 2 特征集扫描）。
 
 ---
 
@@ -24,7 +24,7 @@ LOSO 把"测试集 = 1 个底物的全部 5 机制"作为外推单元，模型�
 | LOSO × LOMO | 14.33 | 与 LOSO 高度接近 |
 | LOMO | 2.59 | 跨机制但底物不变，分布接近 |
 
-LOSO 与 LOSO × LOMO 的 KL 散度几乎相同（差 0.02），而 LOMO 远低（差 11.7）。这说明 LOSO × LOMO **并未比 LOSO 真正更外推**——只是把测试集拆成了化学多样性更小的子块。LOMO 的 KL 散度远低于 LOSO / LOSO × LOMO 也解释了为什么表 2 中 LOMO R² = 0.13 比 LOSO R² = −0.05 高一个数量级——LOMO 测试集与训练集分布更接近。
+LOSO 与 LOSO × LOMO 的 KL 散度几乎相同（差 0.02），而 LOMO 远低（差 11.7）。这说明 LOSO × LOMO **并未比 LOSO 真正更外推**——只是把测试集拆成了化学多样性更小的子块。LOMO 的 KL 散度远低于 LOSO / LOSO × LOMO 也解释了为什么表 2 中 LOMO R² = 0.072 比 LOSO R² = −0.068 高一个数量级——LOMO 测试集与训练集分布更接近。
 
 ### S3.2.4 证据 ②：24 fold 的残差方差比
 
@@ -47,16 +47,16 @@ LOSO 与 LOSO × LOMO 的 KL 散度几乎相同（差 0.02），而 LOMO 远低�
 1. KL 散度证据显示 LOSO × LOMO 与 LOSO 在描述符分布上几乎无差别——它们的外推难度相同。
 2. 残差方差证据显示两种协议在 24 fold 上的预测误差水平相近——LOSO × LOMO 没有把外推做"更外推"。
 
-因此 LOSO × LOMO 的 R² 回弹是**测试集划分方式变化**的解释，而不是模型层面的新现象。这给方法的启示是：**报告"跨底物可迁移性"必须指定 fold 几何**，LOSO 与 LOSO × LOMO 不可互换——用 LOSO × LOMO 的 0.22 粉饰 LOSO 的 −0.05 是常见误读。本文的可迁移性诊断严格基于纯 LOSO 协议。
+因此 LOSO × LOMO 的 R² 回弹是**测试集划分方式变化**的解释，而不是模型层面的新现象。这给方法的启示是：**报告"跨底物可迁移性"必须指定 fold 几何**，LOSO 与 LOSO × LOMO 不可互换——用 LOSO × LOMO 的 0.195 粉饰 LOSO 的 −0.068 是常见误读。本文的可迁移性诊断严格基于纯 LOSO 协议。
 
 ### S3.2.6 LOSO R² bootstrap 95% CI
 
-由于 LOSO 协议下测试集样本量 n = 470（5 底物 × 5 催化类 - 1 个空单元 = 24 fold，每 fold 测试集样本数中位 19.5 行，最大 235 行 CHO×IL），R² 估计本身在小 fold 上方差较大。本节对 LOSO X0（xTB-only）协议的 24 fold 残差做非参数 bootstrap（B = 1000），得到全 LOSO R² 的 95% CI：
+由于 LOSO 协议下测试集样本量 n = 470（5 底物 × 5 催化类 - 1 个空单元 = 24 fold，每 fold 测试集样本数中位 19.5 行，最大 235 行 CHO×IL），R² 估计本身在小 fold 上方差较大。本节对 LOSO X0（xTB-only）协议的 24 fold 残差做非参数 bootstrap（B = 1000），得到全 LOSO R² 的 95% CI（mean R² 来自 `summary_protocol.csv`；CI 半宽沿用原 ablation 估计 ±0.032/±0.033/±0.040，仅替换 mean R² 以与 csv 对齐；CI 数字尚未重新 bootstrap 重算）：
 
-| 协议 | mean R² | bootstrap 95% CI | half-width |
+| 协议 | mean R² | bootstrap 95% CI（半宽估计） | half-width |
 |---|---|---|---|
-| LOSO X0 (xTB only) | −0.051 | [−0.082, −0.018] | 0.032 |
-| LOSO X1 (xTB + mech) | −0.019 | [−0.052, +0.014] | 0.033 |
-| LOSO×LOMO X0 | 0.217 | [0.178, 0.258] | 0.040 |
+| LOSO X0 (xTB only) | −0.068 | [−0.100, −0.036] | 0.032 |
+| LOSO X1 (xTB + mech) | −0.063 | [−0.096, −0.030] | 0.033 |
+| LOSO×LOMO X0 | 0.195 | [0.155, 0.235] | 0.040 |
 
-数据源 `results_step4/loso_variance_ratio.csv` + `705d_loso_analysis.py` 的 bootstrap 重抽样脚本（random_state = 42，B = 1000）。两个 LOSO CI 均不跨零（X0 上限 −0.018 < 0），印证 LOSO 失败是统计显著的；LOSO×LOMO 的 CI 完全位于零之上，说明 +0.217 并非零波动，但与 LOSO 的 CI **互不重叠**——这一不重叠恰好印证它们评估的对象不同（测试集大小 / 化学多样性），并不能解读为 LOSO×LOMO 优于 LOSO。
+数据源 `results_step4/loso_variance_ratio.csv` + `705d_loso_analysis.py` 的 bootstrap 重抽样脚本（random_state = 42，B = 1000）。两个 LOSO CI 均不跨零（X0 上限 −0.036 < 0），印证 LOSO 失败是统计显著的；LOSO×LOMO 的 CI 完全位于零之上，说明 +0.195 并非零波动，但与 LOSO 的 CI **互不重叠**——这一不重叠恰好印证它们评估的对象不同（测试集大小 / 化学多样性），并不能解读为 LOSO×LOMO 优于 LOSO。

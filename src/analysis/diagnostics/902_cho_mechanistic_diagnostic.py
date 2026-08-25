@@ -3,6 +3,15 @@
 902_cho_mechanistic_diagnostic.py
 =================================
 
+CAVEAT (audit 2026-08-22): y is read as a fraction (0-1); SHAP values are
+also in **fraction** units (consistent with the y target). This differs
+from `701_per_substrate_shap.py` (percent units). Do not mix the SHAP
+CSVs across these scripts without re-converting units. The
+`build_xtb_cond_features(...)` helper at lines 117-184 is a copy-paste of
+the canonical implementation in `702_integrated_report.py`; any future
+change to the canonical version must be replicated here. See
+[`docs/CODE_AUDIT.md`](../../docs/CODE_AUDIT.md) §3.
+
 A targeted mechanistic diagnostic for cyclohexene oxide (CHO), the one
 substrate whose mean yield is ~30 percentage points below the other four.
 This script:

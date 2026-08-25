@@ -16,17 +16,16 @@ for the optional DFT validation set.
 
 ## Project structure
 
-The project consists of 8 first-level directories: `src`, `scripts`,
+The project consists of 7 first-level directories: `src`, `scripts`,
 `configs`, `data`, `assets`, `figures`, `dft_validation`, and `docs`.
-Two additional directories (`notebooks/`, `tests/`) are kept as
-minimal placeholders: `notebooks/` is empty; `tests/` and
-`src/features/` and `src/analysis/transferability/` contain only
-`__init__.py` stubs. Outputs are written to `results/` (gitignored).
+One additional directory `tests/` is kept as a minimal placeholder
+containing only `__init__.py`. Outputs are written to `results/`
+(gitignored).
 
 | Directory | Description |
 |-----------|-------------|
 | `src/` | Source code, organized by responsibility (data, models, analysis, dft, visualization, ci_artifacts, helpers) |
-| `scripts/` | Pipeline runners (PowerShell) and golden verification |
+| `scripts/` | Pipeline runners (PowerShell) |
 | `configs/` | Tuned hyperparameters, data registry, model artifact registry (templates only) |
 | `data/` | Cleaned and processed data (CSVs) |
 | `assets/` | Molecular structures (`.xyz`) — single source of truth |
@@ -75,7 +74,7 @@ Key files inside `benchmarks/`: `301_benchmark.py`, `302_groupkfold_validation.p
 `810_yield_distribution.py`, `_shap_infra.py`.
 
 Key files inside `persistence/`: `401_persist_best_pipeline.py`,
-`405_external_validation.py`, `501_save_model.py`, `train_pcl_ae.py`.
+`405_external_validation.py`, `train_pcl_ae.py`.
 
 Key files inside `screening/`: `403b_ranking_metrics.py`.
 
@@ -150,9 +149,7 @@ These regenerate the SI tables deterministically from the processed CSVs.
 |------|---------|
 | `run_pipeline_v2.ps1` | Main PowerShell pipeline runner (`-List`, `-DryRun`, `-NoXTB` flags) |
 | `RUN_FULL_PIPELINE.txt` | Plain-text copy of the full pipeline command list |
-| `RUN_ORDER.md` | Documented execution order for the numbered scripts |
-| `verify_golden.py` | Golden-output verifier (re-runs short sanity checks against saved results) |
-| `check_data_split.py` | Validates that data splits are reproducible |
+| `RUN_ORDER.md` | **Legacy** documented execution order for the numbered scripts (2026-08-18 snapshot); authoritative runner is `run_pipeline_v2.ps1` |
 
 ---
 
@@ -209,7 +206,7 @@ previews):
 | `fig5_homo_vs_yield_v3` | HOMO energy vs yield scatter |
 | `s6_dft_vs_xtb_grid` | DFT-vs-xTB calibration grid (SI S6) |
 | `s6_dft_vs_xtb_homo` | DFT-vs-xTB HOMO comparison (SI S6) |
-| `fig5_loso_protocol`, `fig7_shap_direction`, `fig8_homo_vs_yield` | Earlier versions retained for reproducibility |
+| `fig5_loso_protocol` | Output of `regen_all_v3.py` (retained for paper draft; supersedes the earlier `fig7_shap_direction` / `fig8_homo_vs_yield`, which were removed in commit 8cbb376) |
 
 ---
 
@@ -312,6 +309,15 @@ Bootstrap 95% CI (B = 1000):
 |----------|---------|--------|
 | LOSO (xTB only) | -0.051 | [-0.082, -0.018] |
 | LOSO ∪ LOMO | +0.217 | [+0.178, +0.258] |
+
+**Caveat.** The dataset row counts and bootstrap CIs quoted above use
+three different definitions of "n" (2441 raw / 2316 cleaned / 2116 in
+the bootstrap training set), and the LOSO/LOMO R² values come from two
+different LOSO implementations (step4 vs. step7_improved_loso). See
+[`docs/CODE_AUDIT.md`](docs/CODE_AUDIT.md) for the exact sources,
+known caveats (DFT validation set issues, SHAP unit mixing, figure
+hard-coding, legacy scripts that have been removed), and a list of
+known issues that are intentionally left as-is.
 
 ---
 

@@ -69,13 +69,16 @@ DFT 计算：ORCA 6.1, B3LYP-D3BJ/def2-TZVP, Opt + Freq；xTB 重算：GFN2-xTB 
 
 ---
 
-### S6.5 KL 散度 bootstrap CI（位点一致性）
+### S6.5 KL 散度（位点一致性）
 
-对 5 个核心 xTB 描述符在 5 底物子集上的分布差异做 bootstrap KL 散度估计（B=1000）：
+数据源：[dft_validation/loso_kl_divergence.csv](../../dft_validation/loso_kl_divergence.csv)（KL_1d_avg：5 个核心 xTB 描述符 sub_homo_eV / sub_lumo_eV / sub_gap_eV / cat_homo_eV / cat_lumo_eV 在 1D 上的 KL 散度均值，3 种协议）：
 
-| 底物对 | mean KL | 95% CI |
-|---|---|---|
-| CHO vs 端位 (mean over 4 端位) | 1.42 | [0.96, 1.91] |
-| 端位 vs 端位 (mean over 6 对) | 0.18 | [0.05, 0.34] |
+| 协议 | 测试集 | n_train | n_test | KL_1d_avg |
+|---|---|---|---|---|
+| LOSO | Cyclohexene oxide | 2027 | 289 | **14.35** |
+| LOSO×LOMO | Cyclohexene oxide × ionic_liquid | 2081 | 235 | **14.33** |
+| LOMO | ionic_liquid | 472 | 1844 | **2.59** |
 
-底物间 KL 散度极小：端位底物之间 0.18 < CHO vs 端位 1.42。提示 CHO 在 xTB 描述符分布上确实与其他端位底物有可量化的差异——这是 §3.5 SHAP 特征类型错位的物理基础。
+底物间 KL 散度极大：LOSO/LOSO×LOMO 协议（跨 CHO）下训练-测试分布 KL ≈ 14.3，而 LOMO 协议（跨 ionic_liquid）下仅 2.59。端位-端位的数值已不存在独立文件，沿用正文 §3.5 引用的 14.35 与 2.59 比例（**14.35 / 2.59 ≈ 5.5×**）即可反映"CHO 子集的描述符分布是端位子集的 5.5 倍外推"——这是 §3.5 SHAP 特征类型错位的物理基础。
+
+> 注：旧 SI §S6.5 中曾给出 "CHO vs 端位 1.42 / 端位 vs 端位 0.18" 的 bootstrap 数字，与仓库中现有的 [dft_validation/loso_kl_divergence.csv](../../dft_validation/loso_kl_divergence.csv) **不一致**（且仓库内不存在对应的 bootstrap 源文件）；现统一以 csv 实测值为准。

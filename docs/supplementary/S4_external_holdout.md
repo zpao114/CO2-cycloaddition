@@ -17,19 +17,21 @@
 
 ### S4.2 训练池 vs 测试集（外部 holdout）
 
+外部 holdout 由 `src/models/persistence/405_external_validation.py` 执行。脚本读取 `results/results_data_split/data_split.json` 选 `use_holdout_train=True`，先用 data_split.json 的 `train_indices`（2,116 反应，全集 raw 2,490 中 yield NaN/=0 已过滤，等价全集 clean）取得训练池，再对训练池做 `np.random.shuffle(seed=2026)` + `n_test = int(2116 × 0.15) = 317` 切出测试集。底物/催化系统分布以 `external_test_predictions.csv` 实际明细为准。
+
 | 集合 | n | 5 底物分布 (SO/ECH/PO/CHO/IGE) | 5 催化系统分布 (IL/MH/Mixed/BAS/Unknown) |
 |---|---|---|---|
-| 训练池 | 1,969 | 620/555/504/249/41 | 1566/143/136/58/66 |
-| 测试集 | 347 | 109/85/101/40/12 | 278/33/20/7/9 |
-| 全集 | 2,316 | 729/640/605/289/53 | 1844/176/156/65/75 |
+| 训练池（405 外部） | **1,799** | 570/500/457/228/44 | 1396/153/123/63/64 |
+| 测试集（405 外部） | **317** | 96/87/87/37/10 | 245/23/19/14/16 |
+| 全集 clean（data_split 索引） | **2,490** | 783/692/646/305/64 | 1940/199/161/93/97 |
 
-测试集产率分布：均值 85.5%、中位 94.0%、IQR 14.5%（训练池均值 83.7%；训练池中位 93.0%、IQR 18.0%）。测试集均产率不显著低于训练池——其与训练池的微小差异来自按 yield 四分位的分层抽样（而非简单随机抽样），各底物子集在两集合中的占比基本一致（IGE: 0.57% → 2.88%；其余 < 2% 波动）。因此 §3.5 中 R² 0.382 vs GKF 0.503 的 0.12 差距 **并非**由分布偏移引起，而是反映"随机 CV（同分布插值）vs 独立 holdout（部分 OOD）"两种评估协议的本质差距——随机 K 折测试同分布内的插值能力，独立 holdout 测试模型在从未参与 CV 的反应上的外推能力（虽未按时间切分，仍构成真实部署场景下的 OOD 估计）。
+测试集产率分布：均值 82.3%、标准差 22.5%、范围 [7.0%, 100.0%]（训练池均值 84.1%、标准差 21.7%）。两组均产率相近——测试集从训练池内部随机抽出（不跨 data_split 边界），构成同分布内部的 85/15 切分。这与 §3.5 中 R² ≈ 0.119 的弱 holdout 性能对应——随机 holdout 测试的是"训练池内部的随机外推"，而非"未参与 CV 的反应外推"。**训练池子集分布**：训练池 + 测试集 = data_split train 池 2,116；测试集 317 反应从中抽出后，剩余 1,799 反应为训练池。底物分布 570/500/457/228/44 与全集 clean 783/692/646/305/64 同比例（按 72.4% 缩放），催化分布 1396/153/123/63/64 与全集 1940/199/161/93/97 同比例。
 
 ---
 
 ### S4.3 PCL-AE per-fold 重训策略
 
-正文 §2.5 已说明：外部 holdout 训练时，PCL-AE-128 **仅在训练池 n=1,969 上重训**，而不是直接读取 `results_pcl_ae_viz/pcl_ae_encoder.pt`（后者基于全量 2,316 反应预训练，会构成潜在嵌入泄漏）。
+正文 §2.5 已说明：外部 holdout 训练时，PCL-AE-128 **仅在训练池 n=1,799 上重训**，而不是直接读取 `results_pcl_ae_viz/pcl_ae_encoder.pt`（后者基于全量 2,490 反应预训练，会构成潜在嵌入泄漏）。
 
 `306_external_validation.py` 的实现路径：
 
@@ -54,12 +56,12 @@ else:
 
 | 维度 | 训练池唯一 | 测试集唯一 | 重叠 |
 |---|---|---|---|
-| 反应 ID | 1,969 | 347 | 0 |
+| 反应 ID | 1,799 | 317 | 0 |
 | 底物名 | 5 (SO/ECH/PO/CHO/IGE) | 5 (同上) | 5（覆盖全部底物；这是反应级随机划分的特征，区别于 LOSO） |
 | 催化系统 | 5 | 5 | 5（覆盖全部 5 类） |
-| 文献 ID | 1,128 | 256 | 218（部分文献跨越训练/测试，仅算反应级去重） |
+| 文献 ID（全集 data_split 索引） | 327 | 108 | 76（部分文献跨越训练/测试，仅算反应级去重） |
 
-底物覆盖完整的副作用：测试集包含 12 行 IGE 反应（IGE×LAC/BIF 单元正是 n<10 实验缺口），它们进入测试集为缺口验证提供了有限度的"自然验证"——但每格 n=1-2，统计功效不足，仅作为方向性参考。
+底物覆盖完整的副作用：测试集包含 10 行 IGE 反应（IGE×LAC/BIF 单元正是 n<10 实验缺口），它们进入测试集为缺口验证提供了有限度的"自然验证"——但每格 n=1-2，统计功效不足，仅作为方向性参考。
 
 ---
 
@@ -69,23 +71,25 @@ else:
 
 **切分策略**：
 
-- 训练集：`publication_year ≤ 2021`，共 1,374 条反应
-- 测试集：`publication_year ≥ 2022`，共 898 条反应
+- 训练集：`publication_year ≤ 2021`，共 1,499 条反应
+- 测试集：`publication_year ≥ 2022`，共 942 条反应（合计 2,441 = 全集 2,490 − 49 行 year 字段缺失）
 - 脚本：[generate_year_ood_benchmark.py](generate_year_ood_benchmark.py)
 - 结果：[results_si/year_ood_benchmark.csv](results_si/year_ood_benchmark.csv)
+- 注意：本 OOD 切分独立于 §S4.2 外部 holdout——全集 raw 2,490 在按 yield NaN/yield=0 过滤后得到全集 clean 2,490（全集 raw 已无 NaN 与 0），再按 `publication_year` 分组得到 year 子集；脚本来源与 `co2_drfp_xtb_extended.csv` 的 year 元数据附加过程相关
 
-**年度 OOD 结果（LOMO 5-fold CV 对照）**：
+**年度 OOD 结果（LOMO 5-fold CV 对照，3 种子均值）**：
 
-| 模型 | Year-OOD R² | LOMO R² | Gap（OOD − LOMO） |
+| 模型 | Year-OOD R² | LOMO 5-fold R² | Gap（Year-OOD − LOMO） |
 |---|---|---|---|
-| Random Forest | **0.391** | 0.072 | **+0.319** |
-| DualBranchANN | 0.333 | 0.094 | +0.239 |
-| LightGBM | 0.270 | 0.063 | +0.207 |
-| XGBoost | 0.229 | 0.153 | +0.076 |
+| Random Forest | **0.425** | **0.471** | −0.046 |
+| DualBranchANN | **0.414** | **0.433** | −0.019 |
+| LightGBM | **0.312** | **0.378** | −0.066 |
+| XGBoost | **0.252** | **0.388** | −0.136 |
+
+数据源：Year-OOD 来自 `results_si/year_ood_benchmark.csv`（3 种子 r2_mean 取均），LOMO R² 来自 `results_si/lomo_v3_full_results.csv`（5 fold by catalyst，3 种子取均）。
 
 **关键发现**：
 
-- 随机森林在时间 OOD 场景下表现最优（R² = 0.391），显著高于其他模型，说明 RF 的归纳偏置更适合外推到新文献
-- 所有模型在 Year-OOD 上均显著高于 LOMO（反映 LOMO 因底物覆盖不足而失效，而非真正的 OOD 难度更高）
-- RF 的 Year-OOD R² 0.391 与随机 holdout R² 0.382 接近，说明**年份切分不增加额外难度**，模型对 2022+ 新文献的预测能力与随机切分相当
-- DualBranchANN（0.333）和 XGBoost（0.229）在 Year-OOD 上仍保持正向 R²，表明 DRFP 分子指纹在时间外推场景下具有良好泛化性
+- 4 个模型在 Year-OOD 上均保持 R² > 0，**DRFP 分子指纹对时间外推场景具良好泛化性**：RF (0.425) > DualBranchANN (0.414) > LGBM (0.312) > XGBoost (0.252)。
+- LOMO R² 普遍**高于** Year-OOD：LOMO 仅按催化机制（5 组）划分，测试集与训练集共享全部 5 底物，是同分布内部按 catalyst split 的相对简单任务；Year-OOD 跨越 2021/2022 文献分布偏移，更接近真实部署场景。两者的 Gap 为负（−0.02 至 −0.14），定量反映"催化机制 split 不破坏迁移能力，但年份分布偏移轻微增加难度"——这与 §3.2 LOMO 全部为正 R²、§3.3 LOSO 全部为负 R² 的趋势一致（**底物 split > 年份 split > 催化机制 split** 的 OOD 难度阶梯）。
+- XGBoost 在 Year-OOD 上的 Gap 最大（−0.136），LGBM 较小（−0.066），RF 最小（−0.046）——RF 的归纳偏置（bagging + 随机特征）对时间分布偏移的鲁棒性最强。
